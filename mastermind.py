@@ -9,10 +9,6 @@ STATE_GAMEPLAY = 0
 STATE_WIN = 1
 STATE_LOSE = 2
 
-#Colored text unicode: BLACK,RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN
-_text_colors = ['\033[90m','\033[91m','\033[92m','\033[93m','\033[94m','\033[95m','\033[96m']
-ENDCOLOR = '\033[0m'
-
 def GeneratePattern():
   pattern_len = 0
   #keep asking for input until it's in range
@@ -50,15 +46,6 @@ def PlayerTurnGuess(turn_number,_correct_pattern):
     if((not str_input[i] in already_counted) and str_input[i] in _correct_pattern):
         num_contained_out_of_place += 1
         already_counted.append(str_input[i])
-
-  #Doing a colored output to be fancy not required... kind of confusing and should delete prob.
-  colored_output = "";
-  for i in range(len(str_input)):
-    start_color = _text_colors[0]
-    if(str_input[i].isdigit()):
-      start_color = _text_colors[int(str_input[i]) % len(_text_colors)]
-    colored_output += start_color + str_input[i] + ENDCOLOR
-  print(colored_output)
 
   print("Digits in place: " + str(num_correct_in_place))
   print("Digits contained but out of place: " + str(num_contained_out_of_place))
