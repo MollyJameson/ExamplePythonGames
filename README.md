@@ -1,2 +1,2 @@
 # ExamplePythonGames
-Example Python games for @hackbright's intro students
+Example Python games for @hackbrightacademy's intro students
