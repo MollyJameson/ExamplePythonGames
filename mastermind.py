@@ -1,13 +1,14 @@
 import random
 
 #These globals can be tuned for "fun factor"
-_valid_chars = ['1','2','3','4','5','6','7']
-_max_turns = 10
+_valid_chars = ['1','2','3','4','5','6','7','8','9']
+_max_turns = 12
 
 #Gamestate enums
 STATE_GAMEPLAY = 0
 STATE_WIN = 1
 STATE_LOSE = 2
+STATE_QUIT = 3
 
 def GeneratePattern():
   pattern_len = 0
@@ -52,26 +53,30 @@ def PlayerTurnGuess(turn_number,_correct_pattern):
   # newline for readability
   print("\n")
   if( num_correct_in_place == len(_correct_pattern)):
-    raw_input("You Win! Press Enter to start a new game")
+    end_input = raw_input("You Win! Would you like to play again (Y/N)?")
+    if( 'n' in end_input.lower() ):
+      return STATE_QUIT
     return STATE_WIN;
   elif( turn_number >= _max_turns):
-    raw_input("You Lose, out of turns! Answer was: " + "".join(_correct_pattern) + ". Press Enter to start a new game")
+    end_input = raw_input("You Lose, out of turns! Answer was: " + "".join(_correct_pattern) + ". Would you like to play again (Y/N)?")
+    if( 'n' in end_input.lower() ):
+      return STATE_QUIT
     return STATE_LOSE;
   else:
     return STATE_GAMEPLAY;
 
-def StartNewGame():
+def StartNewGame(state):
   #Lame way to clear the screen for a new game
   print(' \n' * 25);
   print("Mastermind is a code guessing game.\nInput the correct combination with the clues given")
   _correct_pattern = GeneratePattern()
-  state = STATE_GAMEPLAY
   turn_number = 0
   while(state == STATE_GAMEPLAY):
     turn_number += 1
     state = PlayerTurnGuess(turn_number,_correct_pattern)
+  return state
   
 #Main entry point.
-#TODO: graceful quit.
-while(True):
-  StartNewGame()
+state = STATE_GAMEPLAY
+while(state != STATE_QUIT):
+  state = StartNewGame(STATE_GAMEPLAY)
