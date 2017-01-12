@@ -168,7 +168,6 @@ def player_turn_guess():
     # all zeros should be revealed.
 
     # win condition everything revealed, except num mines
-    camelCase = "a"
     grid_total_spaces = GRID_WIDTH * GRID_HEIGHT
     total_revealed = 0
     for i in range(grid_total_spaces):
