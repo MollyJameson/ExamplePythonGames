@@ -2,6 +2,10 @@
 import random
 
 def guessing():
+    """ This function chooses a random number between 1 and 100 and takes in the player's 
+        guesses as input. If the player guesses right within 7 tries, the player wins. No
+        matter whether the player wins or loses, he/she is asked if they want to play again
+    """
     guesses_taken = 0
 
     player_name = raw_input("Welcome to Guess the Number! What is your name? ")
@@ -30,6 +34,8 @@ def guessing():
 
 
 def start():
+    """ This function starts the game by asking the player if they'd like to win or not
+    """
     game_state = raw_input("Would you like to play Guess the Number? Y/N ")
     if game_state.lower() == "y":
         guessing()
