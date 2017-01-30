@@ -22,9 +22,6 @@ CHAR_MINE = "*"
 CHAR_EMPTY = "0"
 CHAR_UNKNOWN = "?"
 
-_board = []
-_revealed_board = []
-
 
 def get_y(index):
     return index / GRID_HEIGHT
@@ -52,16 +49,18 @@ def get_num_mines_around(index, board):
     return mines_found
 
 
-def generate_board():
+def generate_board(board, revealed_board):
     # In the real game it has some extra logic to verify that
     # The first click is never a mine, for simplicity that is left out here.
     # Generate an empty board. This will be flat list, not 2D and we will
     # convert the index.
     grid_total_spaces = (GRID_HEIGHT * GRID_WIDTH)
-    global _board
-    global _revealed_board
-    _board = [CHAR_EMPTY] * grid_total_spaces
-    _revealed_board = [CHAR_UNKNOWN] * grid_total_spaces
+    # Clear from previous game possibly
+    del board[:]
+    del revealed_board[:]
+    # Fill so we modify the reference. Workaround for not using "global" keyword
+    board.extend([CHAR_EMPTY] * grid_total_spaces)
+    revealed_board.extend([CHAR_UNKNOWN] * grid_total_spaces)
     mines_generated = 0
     # when debugging if you want the same game over and over again,
     # seed random with consistant number
@@ -71,19 +70,17 @@ def generate_board():
     while(mines_generated < NUM_MINES):
         randindex = random.randint(0, grid_total_spaces)
         # we have to check we didn't get the same number twice
-        if(_board[randindex] != CHAR_MINE):
-            _board[randindex] = CHAR_MINE
+        if(board[randindex] != CHAR_MINE):
+            board[randindex] = CHAR_MINE
             mines_generated += 1
     # populate the numbers of neighbors to show
     for i in range(grid_total_spaces):
-        if(_board[i] != CHAR_MINE):
-            _board[i] = str(get_num_mines_around(i, _board))
+        if(board[i] != CHAR_MINE):
+            board[i] = str(get_num_mines_around(i, board))
 
 
-def show_board(show_all):
+def show_board(show_all, board, revealed_board):
     print(' \n' * 25)
-    global _revealed_board
-    global _board
     # two spaces for the y labels
     strXLbls = "  "
     strLineBreak = "--"
@@ -95,15 +92,14 @@ def show_board(show_all):
     for y in range(GRID_HEIGHT):
         singleline = str(y) + "|"
         for x in range(GRID_WIDTH):
-            if(show_all == True):
-                singleline += _board[get_index(x, y)]
+            if show_all:
+                singleline += board[get_index(x, y)]
             else:
-                singleline += _revealed_board[get_index(x, y)]
+                singleline += revealed_board[get_index(x, y)]
         print singleline
 
 
-def get_empty_neighbors_index_list(checkx, checky):
-    global _board
+def get_empty_neighbors_index_list(checkx, checky, board):
     neighbors = []
     for x in [checkx - 1, checkx, checkx + 1]:
         for y in [checky - 1, checky, checky + 1]:
@@ -115,10 +111,8 @@ def get_empty_neighbors_index_list(checkx, checky):
     return neighbors
 
 
-def player_turn_guess():
-    global _board
-    global _revealed_board
-    show_board(False)
+def player_turn_guess(board, revealed_board):
+    show_board(False, board, revealed_board)
     str_input = raw_input("Input location guess (x,y), q to quit:")
     if(str_input == 'q'):
         return STATE_QUIT
@@ -136,27 +130,27 @@ def player_turn_guess():
         raw_input("Numbers out of range")
         return STATE_GAMEPLAY
     index = get_index(x, y)
-    _revealed_board[index] = _board[index]
+    revealed_board[index] = board[index]
 
     # lose if clicked on a mine
-    if(_revealed_board[index] == CHAR_MINE):
-        show_board(False)
+    if(revealed_board[index] == CHAR_MINE):
+        show_board(False, board, revealed_board)
         raw_input("you lose " + str(x) + " " + str(y) + " was a mine")
         return STATE_LOSE
 
-    # simplified dijkstra's algorithm for expanding path exploration.
+    # simplified flood fill algorithm for expanding path exploration.
     # reveal all empty neighbors all around empty grid spaces
     # up to containing a number
-    if(_board[index] == CHAR_EMPTY):
+    if(board[index] == CHAR_EMPTY):
         visited_neighbor_list = []
-        unvisited_neighbors_list = get_empty_neighbors_index_list(x, y)
+        unvisited_neighbors_list = get_empty_neighbors_index_list(x, y, board)
         while(len(unvisited_neighbors_list) > 0):
             latest_index = unvisited_neighbors_list.pop(0)
             visited_neighbor_list.append(latest_index)
-            _revealed_board[latest_index] = _board[latest_index]
-            if(_board[latest_index] == CHAR_EMPTY):
+            revealed_board[latest_index] = board[latest_index]
+            if(board[latest_index] == CHAR_EMPTY):
                 latest_neighbors = get_empty_neighbors_index_list(
-                    get_x(latest_index), get_y(latest_index))
+                    get_x(latest_index), get_y(latest_index), board)
                 # we can't just use extend because need to that they haven't
                 # already been visited
                 for i in range(len(latest_neighbors)):
@@ -171,10 +165,10 @@ def player_turn_guess():
     grid_total_spaces = GRID_WIDTH * GRID_HEIGHT
     total_revealed = 0
     for i in range(grid_total_spaces):
-        if(_board[i] != CHAR_MINE and _revealed_board[i] != CHAR_UNKNOWN):
+        if(board[i] != CHAR_MINE and revealed_board[i] != CHAR_UNKNOWN):
             total_revealed += 1
     if(total_revealed == grid_total_spaces - NUM_MINES):
-        show_board(True)
+        show_board(True, board, revealed_board)
         raw_input("YOU WIN")
         return STATE_WIN
 
@@ -182,10 +176,12 @@ def player_turn_guess():
 
 
 def start_new_game():
-    generate_board()
+    board = []
+    revealed_board = []
+    generate_board(board, revealed_board)
     state = STATE_GAMEPLAY
     while(state == STATE_GAMEPLAY):
-        state = player_turn_guess()
+        state = player_turn_guess(board, revealed_board)
     return state
 
 # Main entry point.

@@ -30,15 +30,15 @@ def generate_pattern():
     used_chars = VALID_CHARS
     random.shuffle(used_chars)
     # Take first up to our max len
-    _correct_pattern = used_chars[:pattern_len]
-    return _correct_pattern
+    correct_pattern = used_chars[:pattern_len]
+    return correct_pattern
 
 
-def player_turn_guess(turn_number, _correct_pattern):
+def player_turn_guess(turn_number, correct_pattern):
     """Handles a single player turn"""
-    # print("DEV CHEAT!!!  correct is " + "".join(_correct_pattern))
+    # print("DEV CHEAT!!!  correct is " + "".join(correct_pattern))
     str_input = raw_input("Turn:" + str(turn_number) + " / " + str(MAX_TURNS) +
-                          ". Input guess (" + str(len(_correct_pattern)) +
+                          ". Input guess (" + str(len(correct_pattern)) +
                           " digits): ")
     num_correct_in_place = 0
     num_contained_out_of_place = 0
@@ -47,7 +47,7 @@ def player_turn_guess(turn_number, _correct_pattern):
     # Pick digits that are in correct place.
     min_len = min(len(str_input), len(str_input))
     for i in range(min_len):
-        if(_correct_pattern[i] == str_input[i]):
+        if(correct_pattern[i] == str_input[i]):
             num_correct_in_place += 1
             already_counted.append(str_input[i])
 
@@ -56,8 +56,7 @@ def player_turn_guess(turn_number, _correct_pattern):
     # 2. It wasn't counted before, that is the user inputted the same number
     # twice
     for i in range(len(str_input)):
-        if((not str_input[i] in already_counted) and
-            (str_input[i] in _correct_pattern):
+        if((not str_input[i] in already_counted) and (str_input[i] in correct_pattern)):
                 num_contained_out_of_place += 1
                 already_counted.append(str_input[i])
 
@@ -66,14 +65,14 @@ def player_turn_guess(turn_number, _correct_pattern):
           str(num_contained_out_of_place))
     # newline for readability
     print("\n")
-    if(num_correct_in_place == len(_correct_pattern)):
-        end_input=raw_input("You Win! Would you like to play again (Y/N)?")
+    if(num_correct_in_place == len(correct_pattern)):
+        end_input = raw_input("You Win! Would you like to play again (Y/N)?")
         if('n' in end_input.lower()):
             return STATE_QUIT
         return STATE_WIN
     elif(turn_number >= MAX_TURNS):
-        end_input=raw_input("You Lose, out of turns! Answer was: " +
-                              "".join(_correct_pattern) +
+        end_input = raw_input("You Lose, out of turns! Answer was: " +
+                              "".join(correct_pattern) +
                               ". Would you like to play again (Y/N)?")
         if('n' in end_input.lower()):
             return STATE_QUIT
@@ -86,17 +85,17 @@ def start_new_game(state):
     """Kicks off a new game and keeps looping until game over"""
     # Lame way to clear the screen for a new game
     print(' \n' * 25)
-    print(
-        "Mastermind is a code guessing game.\n\
-        Input the correct combination with the clues given")
-    _correct_pattern=generate_pattern()
-    turn_number=0
+    print("""\
+    Mastermind is a code guessing game.
+    Input the correct combination with the clues given""")
+    correct_pattern = generate_pattern()
+    turn_number = 0
     while(state == STATE_GAMEPLAY):
         turn_number += 1
-        state=player_turn_guess(turn_number, _correct_pattern)
+        state = player_turn_guess(turn_number, correct_pattern)
     return state
 
 # Main entry point.
-state=STATE_GAMEPLAY
+state = STATE_GAMEPLAY
 while(state != STATE_QUIT):
-    state=start_new_game(STATE_GAMEPLAY)
+    state = start_new_game(STATE_GAMEPLAY)
