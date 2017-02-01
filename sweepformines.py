@@ -22,6 +22,14 @@ CHAR_MINE = "*"
 CHAR_EMPTY = "0"
 CHAR_UNKNOWN = "?"
 
+#Colored text unicode: BLACK,RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN
+TEXT_COLORS = ['\033[90m', '\033[91m', '\033[92m', '\033[93m', '\033[94m', '\033[95m', '\033[96m']
+ENDCOLOR = '\033[0m'
+
+# when debugging if you want the same game over and over again,
+# seed random with consistant number
+# random.seed(100)
+
 
 def get_y(index):
     return index / GRID_HEIGHT
@@ -62,13 +70,11 @@ def generate_board(board, revealed_board):
     board.extend([CHAR_EMPTY] * grid_total_spaces)
     revealed_board.extend([CHAR_UNKNOWN] * grid_total_spaces)
     mines_generated = 0
-    # when debugging if you want the same game over and over again,
-    # seed random with consistant number
-    # random.seed(100)
     # We could do a shuffle here like in mastermind example, but as an
     # alternative
     while(mines_generated < NUM_MINES):
-        randindex = random.randint(0, grid_total_spaces)
+        #RandInt is inclusive on both sides
+        randindex = random.randint(0, grid_total_spaces - 1)
         # we have to check we didn't get the same number twice
         if(board[randindex] != CHAR_MINE):
             board[randindex] = CHAR_MINE
@@ -77,6 +83,13 @@ def generate_board(board, revealed_board):
     for i in range(grid_total_spaces):
         if(board[i] != CHAR_MINE):
             board[i] = str(get_num_mines_around(i, board))
+
+
+def format_tile(tile_val):
+    output = str(tile_val)
+    if tile_val.isdigit():
+        output = TEXT_COLORS[int(tile_val) % len(TEXT_COLORS)] + str(tile_val) + ENDCOLOR
+    return output
 
 
 def show_board(show_all, board, revealed_board):
@@ -93,9 +106,9 @@ def show_board(show_all, board, revealed_board):
         singleline = str(y) + "|"
         for x in range(GRID_WIDTH):
             if show_all:
-                singleline += board[get_index(x, y)]
+                singleline += format_tile(board[get_index(x, y)])
             else:
-                singleline += revealed_board[get_index(x, y)]
+                singleline += format_tile(revealed_board[get_index(x, y)])
         print singleline
 
 
