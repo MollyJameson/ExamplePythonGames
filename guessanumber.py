@@ -24,16 +24,11 @@ def guessing():
 
     if guess == number:
         guesses_taken = str(guesses_taken)
-<<<<<<< HEAD
         print "Great job %s! You guessed the number, %d, in %s guesses. " % (player_name, number, guesses_taken)
-=======
-        print "Great job %s! You guessed the number, %d,  in %s guesses. " % (player_name, number, guesses_taken)
->>>>>>> 2a9077b65faf0458fc3e412126d29efee86a95ed
         start()
 
     if guess != number:
-        number = str(number)
-        print "I won! The number I was thinking of was %d. " % (number)
+        print "I won! The number I was thinking of was  %d. " % (number)
         start()
 
 
